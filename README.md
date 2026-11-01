@@ -1,4 +1,4 @@
-# EDK2 for the Galaxy J5 2016 (j5xlte, SM-J510)
+# EDK2 for the Galaxy J5 2016 (j5xlte, SM-J510) (ts entierly slopped btw dont take too serious (Rest In Peace Rest In Peace Fish #29345823-#29347503 that died for this))
 
 UEFI firmware for the Samsung Galaxy J5 2016 (MSM8916), based on
 [Daniel224455/edk2-msm8916](https://github.com/Daniel224455/edk2-msm8916)
