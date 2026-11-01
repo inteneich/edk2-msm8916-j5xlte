@@ -24,8 +24,14 @@
 //
 // Device structures
 //
+//
+// VenHw(controller)/SD(slot) or VenHw(controller)/eMMC(slot), so OS loaders
+// (e.g. Windows Boot Manager) can classify the disk like on any other UEFI box.
+// SD_DEVICE_PATH and EMMC_DEVICE_PATH share the same layout.
+//
 typedef struct {
   VENDOR_DEVICE_PATH Mmc;
+  SD_DEVICE_PATH     Slot;
   EFI_DEVICE_PATH    End;
 } MMCHS_DEVICE_PATH;
 

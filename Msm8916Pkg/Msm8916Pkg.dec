@@ -126,8 +126,37 @@
   gQcomTokenSpaceGuid.PcdMmcSdc3HdrvPullCtlOffset|0|UINT64|0x000000e8
   gQcomTokenSpaceGuid.PcdMmcSdc4HdrvPullCtlOffset|0|UINT64|0x000000e9  
 
+  # SD card detect (0xFFFFFFFF = no card detect line, always probe the slot)
+  gQcomTokenSpaceGuid.PcdSdCardDetectGpio|0xFFFFFFFF|UINT32|0x000000ea
+  gQcomTokenSpaceGuid.PcdSdCardDetectActiveLow|TRUE|BOOLEAN|0x000000eb
+
   # Misc
   gQcomTokenSpaceGuid.PcdGicSpiStart|0|UINT64|0x00000200
+
+  # Touchscreen on bit-banged GPIO I2C (0xFFFFFFFF = not connected)
+  gQcomTokenSpaceGuid.PcdTouchI2cSdaGpio|18|UINT32|0x00000300
+  gQcomTokenSpaceGuid.PcdTouchI2cSclGpio|19|UINT32|0x00000301
+  gQcomTokenSpaceGuid.PcdTouchI2cAddress|0x50|UINT8|0x00000302
+  gQcomTokenSpaceGuid.PcdTouchIntGpio|13|UINT32|0x00000303
+  gQcomTokenSpaceGuid.PcdTouchPowerEnableGpio|0xFFFFFFFF|UINT32|0x00000304
+  gQcomTokenSpaceGuid.PcdTouchMaxX|720|UINT32|0x00000305
+  gQcomTokenSpaceGuid.PcdTouchMaxY|1280|UINT32|0x00000306
+  gQcomTokenSpaceGuid.PcdTouchInvertX|FALSE|BOOLEAN|0x00000307
+  gQcomTokenSpaceGuid.PcdTouchInvertY|FALSE|BOOLEAN|0x00000308
+  gQcomTokenSpaceGuid.PcdTouchSwapXY|FALSE|BOOLEAN|0x00000309
+
+  # OTG VBUS boost in an SM5703 charger on bit-banged GPIO I2C (0xFFFFFFFF = none)
+  gQcomTokenSpaceGuid.PcdOtgBoostI2cSdaGpio|0xFFFFFFFF|UINT32|0x00000310
+  gQcomTokenSpaceGuid.PcdOtgBoostI2cSclGpio|0xFFFFFFFF|UINT32|0x00000311
+  gQcomTokenSpaceGuid.PcdOtgBoostI2cAddress|0x49|UINT8|0x00000312
+
+  # Diagnostic builds only: UsbHostDxe dumps the USB port around an HCRESET and pauses 60s
+  gQcomTokenSpaceGuid.PcdUsbHostSelfTest|FALSE|BOOLEAN|0x00000313
+
+  # Samsung SM5703 MUIC on bit-banged GPIO I2C, routes D+/D- for OTG (0xFFFFFFFF = none)
+  gQcomTokenSpaceGuid.PcdMuicI2cSdaGpio|0xFFFFFFFF|UINT32|0x00000314
+  gQcomTokenSpaceGuid.PcdMuicI2cSclGpio|0xFFFFFFFF|UINT32|0x00000315
+  gQcomTokenSpaceGuid.PcdMuicI2cAddress|0x25|UINT8|0x00000316
 
 [PcdsFeatureFlag.common]
   # MMCHSDxe

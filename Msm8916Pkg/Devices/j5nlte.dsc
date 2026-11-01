@@ -27,3 +27,7 @@
   gMsm8916PkgTokenSpaceGuid.PcdDeviceVendor|"Samsung"
   gMsm8916PkgTokenSpaceGuid.PcdDeviceProduct|"Galaxy J5 2015"
   gMsm8916PkgTokenSpaceGuid.PcdDeviceCodeName|"j5nlte"
+
+  # SD card detect (sdc2_cd, active low)
+  gQcomTokenSpaceGuid.PcdSdCardDetectGpio|38
+  gQcomTokenSpaceGuid.PcdSdCardDetectActiveLow|TRUE

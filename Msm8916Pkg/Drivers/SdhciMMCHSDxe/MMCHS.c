@@ -23,9 +23,17 @@ PlatformCallbackInitSlot(struct mmc_config_data *config)
   Instance->BlockMedia.BlockSize = dev->card.block_size;
   Instance->BlockMedia.LastBlock =
       dev->card.capacity / Instance->BlockMedia.BlockSize - 1;
+  Instance->BlockMedia.RemovableMedia = (config->slot != 1);
+  /* Slot 1 is the eMMC with the phone's own partitions: never write it */
+  Instance->BlockMedia.ReadOnly = (config->slot == 1);
 
   // Give every device a slighty different GUID
   Instance->DevicePath.Mmc.Guid.Data4[7] = config->slot;
+
+  // Slot 1 is the soldered eMMC, everything else is an SD card slot
+  Instance->DevicePath.Slot.Header.SubType =
+      (config->slot == 1) ? MSG_EMMC_DP : MSG_SD_DP;
+  Instance->DevicePath.Slot.SlotNumber = (UINT8)(config->slot - 1);
 
   // Register for ExitBS event
   Status = gBS->CreateEventEx(
@@ -78,6 +86,16 @@ STATIC BIO_INSTANCE mBioTemplate = {
             },
             // Hardware Device Path for Bio
             EFI_CALLER_ID_GUID // Use the driver's GUID
+        },
+        {
+            // SD/eMMC slot, SubType is fixed up per slot
+            {
+                MESSAGING_DEVICE_PATH,
+                MSG_SD_DP,
+                {(UINT8)(sizeof(SD_DEVICE_PATH)),
+                 (UINT8)((sizeof(SD_DEVICE_PATH)) >> 8)},
+            },
+            0 // SlotNumber
         },
 
         {
@@ -157,7 +175,42 @@ mmc_write(BIO_INSTANCE *Instance, UINT64 data_addr, UINT32 data_len, VOID *in)
  * Flow    : Read data from the card to out
  */
 STATIC UINT32
+mmc_read_aligned(BIO_INSTANCE *Instance, UINT64 data_addr, UINT32 *out, UINT32 data_len);
+
+/*
+ * Function: mmc_read
+ * Arg     : Data address on card, o/p buffer & data length
+ * Return  : 0 on Success, non zero on failure
+ * Flow    : The SDHCI DMA path needs cache line aligned read buffers (the
+ *           cache invalidate after the transfer would otherwise clobber
+ *           whatever shares the first/last cache line). UEFI callers only
+ *           honour IoAlign, so bounce unaligned reads.
+ */
+STATIC UINT32
 mmc_read(BIO_INSTANCE *Instance, UINT64 data_addr, UINT32 *out, UINT32 data_len)
+{
+  UINT32 ret;
+  UINTN  pages;
+  VOID  *bounce;
+
+  if (IS_CACHE_LINE_ALIGNED(out))
+    return mmc_read_aligned(Instance, data_addr, out, data_len);
+
+  pages  = EFI_SIZE_TO_PAGES(data_len);
+  bounce = AllocatePages(pages);
+  if (bounce == NULL)
+    return 1;
+
+  ret = mmc_read_aligned(Instance, data_addr, bounce, data_len);
+  if (ret == 0)
+    CopyMem(out, bounce, data_len);
+
+  FreePages(bounce, pages);
+  return ret;
+}
+
+STATIC UINT32
+mmc_read_aligned(BIO_INSTANCE *Instance, UINT64 data_addr, UINT32 *out, UINT32 data_len)
 {
   UINT32 ret = 0;
   UINT32 block_size;
@@ -307,12 +360,10 @@ MMCHSWriteBlocks(
     return EFI_SUCCESS;
   }
 
-  // Here goes a fail-safe design (see issue #5)
-  // Assume the partition layout before partition 36 is identical on our target
-  // devices
-  // Only slot 1 (eMMC) is protected
-  if (Instance->MmcDev->config.slot <= 1 && (0 <= Lba && Lba <= 253951)) {
-    return EFI_UNSUPPORTED;
+  // The eMMC (slot 1) holds the phone's bootloader/Android partitions:
+  // refuse every write to it, not just the first partitions
+  if (Instance->MmcDev->config.slot <= 1) {
+    return EFI_WRITE_PROTECTED;
   }
 
   OldTpl = gBS->RaiseTPL(TPL_NOTIFY);

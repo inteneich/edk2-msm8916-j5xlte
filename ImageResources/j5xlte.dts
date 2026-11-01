@@ -1,0 +1,18 @@
+/dts-v1/;
+
+/ {
+	qcom,msm-id = <0xce 0x00>;
+	qcom,board-id = <0xce08ff01 0x04>;
+	model = "Samsung Galaxy J5 2016";
+	compatible = "samsung,j510f", "qcom,msm8916";
+	#address-cells = <0x02>;
+	#size-cells = <0x02>;
+
+	chosen {
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00 0x00 0x00 0x00>;
+	};
+};

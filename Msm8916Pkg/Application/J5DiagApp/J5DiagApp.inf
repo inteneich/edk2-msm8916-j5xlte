@@ -1,0 +1,33 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = J5Diag
+  FILE_GUID                      = 4D1F7A60-2C3B-4E85-9F14-6B0A8E2D5C93
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = J5DiagMain
+
+[Sources]
+  J5DiagApp.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiBootServicesTableLib
+  UefiLib
+  BaseLib
+  BaseMemoryLib
+  IoLib
+  PcdLib
+  ArmLib
+  ArmSmcLib
+  ArmGenericTimerCounterLib
+
+[Protocols]
+  gEfiLoadedImageProtocolGuid
+
+[Pcd]
+  gArmTokenSpaceGuid.PcdGicDistributorBase
+  gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase

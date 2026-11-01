@@ -7,3 +7,5 @@ workspace
 *.swp
 *.rej
 *.orig
+
+uefi-*.img

@@ -48,6 +48,7 @@
   MicroLibC|Msm8916Pkg/Library/MicroLibC/MicroLibC.inf
   LcmLib|Msm8916Pkg/Library/LcmLib/LcmLib.inf
   StrLib|Msm8916Pkg/Library/StrLib/StrLib.inf
+  GpioI2cLib|Msm8916Pkg/Library/GpioI2cLib/GpioI2cLib.inf
 
   # UiApp dependencies
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
@@ -173,18 +174,19 @@
   gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x0b002000
 
   # SoC Drivers GPIO TLMM
+  # MSM8916: one 4K page per GPIO (cfg +0x0, in/out +0x4, intr cfg +0x8, intr status +0xc)
   gQcomTokenSpaceGuid.PcdGpioTlmmBaseAddress|0x1000000
   gQcomTokenSpaceGuid.PcdGpioTlmmSummaryIrq|240
-  gQcomTokenSpaceGuid.PcdGpioTlmmIoOffset|0x1004
-  gQcomTokenSpaceGuid.PcdGpioTlmmIoElementSize|0x10
-  gQcomTokenSpaceGuid.PcdGpioTlmmCtlOffset|0x1000
-  gQcomTokenSpaceGuid.PcdGpioTlmmCtlElementSize|0x10
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrCfgOffset|0x1008
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrCfgElementSize|0x10
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrStatusOffset|0x100c
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrStatusElementSize|0x10
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrTargetOffset|0x1008
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrTargetElementSize|0x10
+  gQcomTokenSpaceGuid.PcdGpioTlmmIoOffset|0x4
+  gQcomTokenSpaceGuid.PcdGpioTlmmIoElementSize|0x1000
+  gQcomTokenSpaceGuid.PcdGpioTlmmCtlOffset|0x0
+  gQcomTokenSpaceGuid.PcdGpioTlmmCtlElementSize|0x1000
+  gQcomTokenSpaceGuid.PcdGpioTlmmIntrCfgOffset|0x8
+  gQcomTokenSpaceGuid.PcdGpioTlmmIntrCfgElementSize|0x1000
+  gQcomTokenSpaceGuid.PcdGpioTlmmIntrStatusOffset|0xc
+  gQcomTokenSpaceGuid.PcdGpioTlmmIntrStatusElementSize|0x1000
+  gQcomTokenSpaceGuid.PcdGpioTlmmIntrTargetOffset|0x8
+  gQcomTokenSpaceGuid.PcdGpioTlmmIntrTargetElementSize|0x1000
   gQcomTokenSpaceGuid.PcdGpioTlmmIntrEnableBit|0
   gQcomTokenSpaceGuid.PcdGpioTlmmIntrStatusBit|0
   gQcomTokenSpaceGuid.PcdGpioTlmmIntrAckHigh|FALSE

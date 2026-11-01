@@ -69,27 +69,32 @@ static ARM_MEMORY_REGION_DESCRIPTOR_EX gDeviceMemoryDescriptorEx[] = {
     {"RAM Partition",     0x80280000, 0x00080000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
     {"MPPark Code",       0x80300000, 0x00040000, AddMem, MEM_RES, UNCACHEABLE, RtCode, UNCACHED_UNBUFFERED},
     {"HLOS 2",            0x80340000, 0x00040000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, UNCACHED_UNBUFFERED},
-    {"FBPT Payload",      0x80380000, 0x00001000, AddMem, SYS_MEM, SYS_MEM_CAP, RtData, UNCACHED_UNBUFFERED},
+    /* Unused Lumia leftovers: keep them out of the way, but not as runtime memory.
+     * AArch64 runtime regions must be 64K aligned or ExitBootServices fails. */
+    {"FBPT Payload",      0x80380000, 0x00001000, AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, UNCACHED_UNBUFFERED},
     {"DBG2",              0x80381000, 0x00004000, AddMem, SYS_MEM, SYS_MEM_CAP, LdData, UNCACHED_UNBUFFERED},
-    {"Capsule Header",    0x80385000, 0x00001000, AddMem, SYS_MEM, SYS_MEM_CAP, RtData, UNCACHED_UNBUFFERED},
-    {"TPM Control Area",  0x80386000, 0x00003000, AddMem, SYS_MEM, SYS_MEM_CAP, RtData, UNCACHED_UNBUFFERED},
+    {"Capsule Header",    0x80385000, 0x00001000, AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, UNCACHED_UNBUFFERED},
+    {"TPM Control Area",  0x80386000, 0x00003000, AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, UNCACHED_UNBUFFERED},
     {"RAM Partition",     0x80389000, 0x00005000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
     {"Reser. Uncached0",  0x8038E000, 0x00072000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, UNCACHED_UNBUFFERED},
     {"RAM Partition",     0x80400000, 0x00840000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
     {"CPU Vectors",       0x80C40000, 0x00010000, AddMem, SYS_MEM, SYS_MEM_CAP, BsCode, WRITE_BACK},
     {"Reser. Cached 0",   0x80C50000, 0x000B0000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
-    {"RAM Partition",     0x80D00000, 0x05300000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
+    {"RAM Partition",     0x80D00000, 0x04800000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
+    /* Samsung TZ modifications, no-map in mainline msm8916-samsung-j5-common.dtsi */
+    {"Samsung TZ Apps",   0x85500000, 0x00B00000, AddMem, MEM_RES, UNCACHEABLE, Reserv, NS_DEVICE},
     {"TZ Apps",           0x86000000, 0x00300000, AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, NS_DEVICE},
     {"SMEM",              0x86300000, 0x00100000, AddMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED},
     {"TZ/HYP",            0x86400000, 0x00280000, AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, NS_DEVICE},
-    {"HLOS 5",            0x86680000, 0x00080000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK},
+    /* reserved@86680000 is no-map in mainline msm8916.dtsi, not usable RAM */
+    {"Reserved",          0x86680000, 0x00080000, AddMem, MEM_RES, UNCACHEABLE, Reserv, NS_DEVICE},
     {"MPSS/EFS/DHMS/PIL", 0x86700000, 0x06C00000, AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, NS_DEVICE},
     {"RAM Partition",     0x8D300000, 0x00D00000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
     {"Display Reserved",  0x8e000000, 0x00800000, AddMem, MEM_RES, WRITE_THROUGH,MaxMem, WRITE_THROUGH},
     //{"RAM Partition",     0x8e800000, 0x51800000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
 
     /* RAM partition regions */
-    {"RAM Partition",     0x8cb00000, 0x01500000, AddMem, SYS_MEM, SYS_MEM_CAP,  Conv,   WRITE_BACK_XN},
+    /* (0x8cb00000-0x8e000000 used to be listed here too; it overlapped MPSS and duplicated 0x8D300000) */
     /* Avoid Display Reserved */
     {"RAM Partition",     0x8e800000, 0x11700000, AddMem, SYS_MEM, SYS_MEM_CAP,  Conv,   WRITE_BACK_XN},
     /* carveout */

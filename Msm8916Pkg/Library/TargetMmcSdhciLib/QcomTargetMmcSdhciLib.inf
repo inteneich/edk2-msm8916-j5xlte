@@ -20,10 +20,15 @@
   DebugLib
   GpioTlmmLib
   MicroLibC
+  TimerLib
 
 [Pcd.common]
   gQcomTokenSpaceGuid.PcdGpioTlmmBaseAddress
   gQcomTokenSpaceGuid.PcdGicSpiStart
   gQcomTokenSpaceGuid.PcdMmcSdc1HdrvPullCtlOffset
   gQcomTokenSpaceGuid.PcdMmcSdc2HdrvPullCtlOffset
+
+[FixedPcd]
+  gQcomTokenSpaceGuid.PcdSdCardDetectGpio
+  gQcomTokenSpaceGuid.PcdSdCardDetectActiveLow
 

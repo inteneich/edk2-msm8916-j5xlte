@@ -1,1 +1,112 @@
-# EDK II Firmware for MSM8916 (internally known as Bagheera) platforms.
+# EDK2 for the Galaxy J5 2016 (j5xlte, SM-J510)
+
+UEFI firmware for the Samsung Galaxy J5 2016 (MSM8916), based on
+[Daniel224455/edk2-msm8916](https://github.com/Daniel224455/edk2-msm8916)
+(the j5nlte port, at `aff146e`). It boots **Windows 10 PE ARM64**
+(tested with 10586.1078.th2_bnb) from the SD card, with storage and touch
+working in both UEFI and Windows.
+
+Companion repos:
+- [j5touch](https://github.com/jimkoutso2008/j5touch): Windows touchscreen driver
+- [j5osk](https://github.com/jimkoutso2008/j5osk): on-screen keyboard for WinPE
+
+## Status
+
+| | UEFI | Windows PE |
+|---|---|---|
+| Display (framebuffer) | yes | yes |
+| SD card (SDC2) | yes | yes (inbox `sdbus`/`sdstor`) |
+| eMMC (SDC1) | read-only | hidden on purpose |
+| Touchscreen (IST3038C) | yes | yes ([j5touch](https://github.com/jimkoutso2008/j5touch)) |
+| CPU cores | 1 | 1 (no PSCI / MP parking yet) |
+| USB OTG host | no (WIP, `UsbHostDxe`) | no |
+
+**The eMMC is protected:** the firmware reports it read-only and refuses all writes
+(`EFI_WRITE_PROTECTED`), and the DSDT hides it from Windows (`SDC1._STA = 0`).
+It holds the phone's bootloader and Android partitions.
+
+## Building (WSL Debian)
+
+```bash
+sudo apt install build-essential uuid-dev iasl nasm python3 python-is-python3 gcc-aarch64-linux-gnu device-tree-compiler mkbootimg git
+```
+
+```bash
+git clone https://github.com/jimkoutso2008/edk2-msm8916-j5xlte && cd edk2-msm8916-j5xlte
+```
+
+```bash
+git submodule update --init --depth 1 edk2 edk2-platforms && git -C edk2 submodule update --init --depth 1
+```
+
+```bash
+mkdir -p workspace && (set --; . edk2/edksetup.sh && make -C edk2/BaseTools -j"$(nproc)")
+```
+
+```bash
+./build.sh j5xlte RELEASE
+```
+
+`build.sh [device] [DEBUG|RELEASE]` writes `boot-<device>.img` (gzip'd FD + DTB).
+Extra `build` flags go in `$BUILD_EXTRA` (e.g. `BUILD_EXTRA="-D USB_SELFTEST"`).
+Clone into the WSL filesystem (`~/...`), not `/mnt/c`.
+
+Wrap it as an Android boot image for lk2nd:
+
+```bash
+mkbootimg --kernel boot-j5xlte.img --base 0x80000000 --kernel_offset 0x00080000 --pagesize 2048 --cmdline "" -o uefi-j5xlte-androidboot.img
+```
+
+## Booting
+
+The stock Samsung bootloader won't boot it directly; use [lk2nd](https://github.com/msm8916-mainline/lk2nd)
+(23.1 tested) as a chain bootloader, then:
+
+```bash
+fastboot boot uefi-j5xlte-androidboot.img
+```
+
+or `fastboot flash boot uefi-j5xlte-androidboot.img` from lk2nd.
+
+### Windows PE from the SD card
+1. Copy the WinPE files (`efi\`, `boot\`, `sources\boot.wim`) to a FAT32 SD card.
+2. The BCD needs `testsigning on`, `nointegritychecks on` and `onecpu on`.
+   [`tools/bcd.cmd`](tools/bcd.cmd) shows, edits or recreates it (elevated cmd).
+3. Install [j5touch](https://github.com/jimkoutso2008/j5touch) and
+   [j5osk](https://github.com/jimkoutso2008/j5osk) into `boot.wim` for touch input.
+
+## What changed vs. upstream
+
+**Windows boot**
+- `SD()`/`eMMC()` device-path nodes so bootmgr can reopen its boot device (was 0xc000000f).
+- Single-core MADT in the old 40-byte GICC format 10586 expects. The 4-core table is
+  kept as `Prebuilt_8916/Madt_4core_mppark.acpi`. GTDT trimmed to 0x60.
+- Memory map: Samsung TrustZone regions reserved (`0x85500000+0xB00000`,
+  `0x86680000+0x80000`), overlap with MPSS removed, small `RtData` regions retyped
+  so runtime regions stay 64 KB aligned (`ExitBootServices` failed otherwise).
+- DSDT: `SDC2` with an embedded `SDMM` child (`_RMV 0`, card detect is a GPIO),
+  `SDC1` hidden, `TSC0`/`J5TS0001` touch device (TLMM GPIO pages), `USB0`.
+
+**Storage (`SdhciMMCHSDxe`)**
+- eMMC always initialized (8-bit HS200, falls back without HS200), read-only.
+- SD card probed only when present (card detect GPIO 38), 4-bit up to 50 MHz.
+- SDC2 pin config bit offsets fixed; unaligned reads go through a bounce buffer
+  (they hung DEBUG builds and corrupted memory in RELEASE); per-clock-change 8 MB
+  framebuffer wipe removed.
+
+**GPIO** — TLMM register stride PCDs fixed (0x1000 per GPIO on MSM8916).
+
+**Touch (`Ist3038cTouchDxe`, `GpioI2cLib`)** — Imagis IST3038C on bit-banged I2C
+(SDA 18, SCL 19, INT 13, VDD enable 108), protocol from Linux `imagis.c`, publishes
+`EFI_ABSOLUTE_POINTER_PROTOCOL`. Pins and axis flips are PCDs in `Devices/j5xlte.dsc`.
+
+**Apps in the FV** — `TouchTest` (draws touches), `J5Diag` (EL, timer, GIC, PSCI info).
+
+**Build** — `Devices/j5xlte.dsc`/`.fdf`, `ImageResources/j5xlte.dts`/`.dtb`
+(board-id `0xce08ff01 0x04`). j5nlte still builds.
+
+## Known gaps
+- USB OTG host: `UsbHostDxe` brings up VBUS boost, MUIC routing and the ChipIdea
+  controller, but no device is detected yet.
+- Only one CPU core; needs PSCI or MP parking in the firmware.
+- `DeviceMemoryMap.h` maps 1.5 GB; the top 256 MB of the 2 GB isn't mapped yet.

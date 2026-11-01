@@ -1,0 +1,20 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = GpioI2cLib
+  FILE_GUID                      = 7A0E3B92-5D41-4C8F-B2E6-19C4F0A83D57
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = GpioI2cLib|DXE_DRIVER UEFI_DRIVER UEFI_APPLICATION
+
+[Sources.common]
+  GpioI2cLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  Msm8916Pkg/Msm8916Pkg.dec
+
+[LibraryClasses]
+  GpioTlmmLib
+  TimerLib
