@@ -1,14 +1,7 @@
 # EDK2 for the Galaxy J5 2016 (j5xlte, SM-J510) (ts entierly slopped btw dont take too serious (Rest In Peace Rest In Peace Fish #29345823-#29347503 that died for this))
 
-UEFI firmware for the Samsung Galaxy J5 2016 (MSM8916), based on
-[Daniel224455/edk2-msm8916](https://github.com/Daniel224455/edk2-msm8916)
-(the j5nlte port, at `aff146e`). It boots **Windows 10 PE ARM64**
-(tested with 10586.1078.th2_bnb) from the SD card, with storage and touch
-working in both UEFI and Windows.
+<img width="875" height="713" alt="photo_2026-08-10_19-11-33" src="https://github.com/user-attachments/assets/98ab62c9-6815-4e60-8ef1-d5ecc39fab57" />
 
-Companion repos:
-- [j5touch](https://github.com/jimkoutso2008/j5touch): Windows touchscreen driver
-- [j5osk](https://github.com/jimkoutso2008/j5osk): on-screen keyboard for WinPE
 
 ## Status
 
